@@ -17,9 +17,9 @@ namespace Project.Services
             _subjectsRepository.Create(subjects);
         }
 
-        public void Delete(Subjects subjects)
+        public void Delete(int id)
         {
-            _subjectsRepository.Delete(subjects);
+            _subjectsRepository.Delete(id);
         }
 
         public List<Subjects> GetAll()
@@ -37,9 +37,9 @@ namespace Project.Services
             return _subjectsRepository.GetByName(name);
         }
 
-        public void Update(Subjects subjects)
+        public void Update(Subjects subjects, int id)
         {
-            _subjectsRepository.Update(subjects);
+            _subjectsRepository.Update(subjects,id);
         }
     }
 }

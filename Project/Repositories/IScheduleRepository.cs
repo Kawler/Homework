@@ -4,6 +4,6 @@ namespace Project.Repositories
 {
     public interface IScheduleRepository
     {
-        List<Tuple<string, int, string, string>> GetSchedule();
+        List<Tuple<string, int, string>> GetSchedule();
     }
 }

@@ -10,9 +10,9 @@ namespace Project.Services
         {
             _scheduleRepository = scheduleRepository;
         }
-        public List<Tuple<string, int, string, string>> GetSchedule()
+        public List<Tuple<string, int, string>> GetSchedule()
         {
-            return(List<Tuple<string, int, string, string>>) _scheduleRepository.GetSchedule();   
+            return(List<Tuple<string, int, string>>) _scheduleRepository.GetSchedule();   
         }
     }
 }

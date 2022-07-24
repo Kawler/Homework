@@ -11,12 +11,10 @@ namespace Project.Controllers
     public class TeacherController : ControllerBase
     {
         private readonly ITeacherService _teacherService;
-        private readonly IWebHostEnvironment _env;
 
-        public TeacherController(ITeacherService teacherService, IWebHostEnvironment env)
+        public TeacherController(ITeacherService teacherService)
         {
             _teacherService = teacherService;
-            _env = env;
         }
 
         [HttpGet]
@@ -26,21 +24,6 @@ namespace Project.Controllers
             try
             {
                 return Ok(_teacherService.GetAll().ConvertAll(t => t.ConvertToTeacherDto()));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-
-        [HttpPost]
-        [Route("id")]
-        public IActionResult GetById(int id)
-        {
-            try
-            {
-                return Ok(_teacherService.GetById(id).ConvertToTeacherDto());
             }
             catch (Exception ex)
             {
@@ -64,11 +47,12 @@ namespace Project.Controllers
         }
 
         [HttpDelete]
-        public IActionResult Delete(Teacher teacher)
+        [Route("{id?}")]
+        public IActionResult Delete(int id)
         {
             try
             {
-                _teacherService.Delete(teacher);
+                _teacherService.Delete(id);
                 return Ok();
             }
             catch (Exception ex)
@@ -78,54 +62,18 @@ namespace Project.Controllers
         }
 
         [HttpPut]
-        public IActionResult Update(Teacher teacher)
+        [Route("{id?}")]
+        public IActionResult Update(int id, Teacher teacher)
         {
             try
             {
-                _teacherService.Update(teacher);
+                _teacherService.Update(id,teacher);
                 return Ok();
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
-        }
-        [HttpGet]
-        [Route("group")]
-        public IActionResult GroupByTaughtSubject()
-        {
-            try
-            {
-                return Ok(_teacherService.GroupByTaughtSubject());
-            }
-            catch(Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        [HttpPost]
-        [Route("SaveFile")]
-        public IActionResult SaveFile()
-        {
-            try
-            {
-                var httpRequest = Request.Form;
-                var postedFile = httpRequest.Files[0];
-                string fileName = postedFile.FileName;
-                var physicalPath = _env.ContentRootPath + "/Photos/" + fileName;
-
-                using (var stream = new FileStream(physicalPath, FileMode.Create))
-                {
-                    postedFile.CopyTo(stream);
-                }
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-
         }
     }
 }

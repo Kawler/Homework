@@ -1,6 +1,7 @@
 using Project.Models;
 using Project.Repositories;
 using Project.Services;
+using Microsoft.AspNetCore.Cors;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +19,13 @@ builder.Services.AddScoped<IScheduleRepository>(s =>
     new ScheduleRepository(builder.Configuration.GetValue<string>("DefaultConnection")));
 builder.Services.AddScoped<IScheduleService, ScheduleService>();
 
-var app = builder.Build();
-app.MapControllers();
+builder.Services.AddCors(p => p.AddPolicy("corspolicy", build =>
+{
+    build.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader();
+}
+));
 
+var app = builder.Build();
+app.UseCors("corspolicy");
+app.MapControllers();
 app.Run();

@@ -21,7 +21,7 @@ namespace Project.Repositories
             connection.Open();
 
             using SqlCommand sqlCommand = connection.CreateCommand();
-            sqlCommand.CommandText = "select [SubjectId], [Classroom], [SubjectName], [PhotoFile] from [Subjects]";
+            sqlCommand.CommandText = "select [SubjectId], [Classroom], [SubjectName] from [Subjects]";
 
             using SqlDataReader reader = sqlCommand.ExecuteReader();
             while (reader.Read())
@@ -29,8 +29,7 @@ namespace Project.Repositories
                 result.Add(new Subjects(
                     Convert.ToInt32(reader["SubjectId"]),
                     Convert.ToInt32(reader["Classroom"]),
-                    Convert.ToString(reader["SubjectName"]),
-                    Convert.ToString(reader["PhotoFile"])
+                    Convert.ToString(reader["SubjectName"])
                 ));
             }
 
@@ -52,8 +51,7 @@ namespace Project.Repositories
                 return new Subjects(
                     Convert.ToInt32(reader["SubjectId"]),
                     Convert.ToInt32(reader["Classroom"]),
-                    Convert.ToString(reader["SubjectName"]),
-                    Convert.ToString(reader["PhotoFile"])
+                    Convert.ToString(reader["SubjectName"])
                     );
             }
             else
@@ -68,7 +66,7 @@ namespace Project.Repositories
             connection.Open();
 
             using SqlCommand sqlCommand = connection.CreateCommand();
-            sqlCommand.CommandText = "select [SubjectId], [Classroom], [SubjectName], [PhotoFile] from [Subjects] where [SubjectId] = @id";
+            sqlCommand.CommandText = "select [SubjectId], [Classroom], [SubjectName] from [Subjects] where [SubjectId] = @id";
             sqlCommand.Parameters.Add("@id", SqlDbType.Int).Value = id;
 
             using SqlDataReader reader = sqlCommand.ExecuteReader();
@@ -77,8 +75,7 @@ namespace Project.Repositories
                 return new Subjects(
                     Convert.ToInt32(reader["SubjectId"]),
                     Convert.ToInt32(reader["Classroom"]),
-                    Convert.ToString(reader["SubjectName"]),
-                    Convert.ToString(reader["PhotoFile"])
+                    Convert.ToString(reader["SubjectName"])
                     );
             }
             else
@@ -87,7 +84,7 @@ namespace Project.Repositories
             }
         }
 
-        public void Update(Subjects subjects)
+        public void Update(Subjects subjects,int id)
         {
             if (subjects == null)
             {
@@ -97,31 +94,21 @@ namespace Project.Repositories
             using var connection = new SqlConnection(_connectionString);
             connection.Open();
             using SqlCommand sqlCommand = connection.CreateCommand();
-            sqlCommand.CommandText = "update [Subjects] set [Classroom] = @classroom where [SubjectId] = @id";
-            using SqlCommand sqlCommand2 = connection.CreateCommand();
-            sqlCommand.CommandText = "update [Subjects] set [SubjectName] = @subjectName where [SubjectId] = @id";
-            using SqlCommand sqlCommand3 = connection.CreateCommand();
-            sqlCommand.CommandText = "update [Subjects] set [PhotoFile] = @photoFile where [SubjectId] = @id";
-            sqlCommand.Parameters.Add("@id", SqlDbType.Int).Value = subjects.SubjectId;
+            sqlCommand.CommandText = "update [Subjects] set [SubjectName] = @subjectName,[Classroom] = @classroom where [SubjectId] = @id";
+            sqlCommand.Parameters.Add("@id", SqlDbType.Int).Value = id;
             sqlCommand.Parameters.Add("@classroom", SqlDbType.Int).Value = subjects.Classroom;
             sqlCommand.Parameters.Add("@subjectName", SqlDbType.NVarChar, 30).Value = subjects.SubjectName;
-            sqlCommand.Parameters.Add("@photoFile", SqlDbType.NVarChar, 500).Value = subjects.PhotoFile;
             sqlCommand.ExecuteNonQuery();
         }
 
-        public void Delete(Subjects subjects)
+        public void Delete(int id)
         {
-            if (subjects == null)
-            {
-                throw new ArgumentNullException(nameof(subjects));
-            }
-
             using var connection = new SqlConnection(_connectionString);
             connection.Open();
 
             using SqlCommand sqlCommand = connection.CreateCommand();
             sqlCommand.CommandText = "delete [Subjects] where [SubjectId] = @id";
-            sqlCommand.Parameters.Add("@id", SqlDbType.Int).Value = subjects.SubjectId;
+            sqlCommand.Parameters.Add("@id", SqlDbType.Int).Value = id;
             sqlCommand.ExecuteNonQuery();
         }
 
@@ -131,10 +118,9 @@ namespace Project.Repositories
             connection.Open();
 
             using SqlCommand sqlCommand = connection.CreateCommand();
-            sqlCommand.CommandText = "insert into [Subjects] (Classroom, SubjectName, PhotoFile) values (@classroom, @subjectName, @photoFile)";
+            sqlCommand.CommandText = "insert into [Subjects] (Classroom, SubjectName) values (@classroom, @subjectName)";
             sqlCommand.Parameters.Add("@classroom", SqlDbType.Int).Value = subjects.Classroom;
             sqlCommand.Parameters.Add("@subjectName", SqlDbType.NVarChar, 30).Value = subjects.SubjectName;
-            sqlCommand.Parameters.Add("@photoFile", SqlDbType.NVarChar, 500).Value = subjects.PhotoFile;
             sqlCommand.ExecuteNonQuery();
         }
     }

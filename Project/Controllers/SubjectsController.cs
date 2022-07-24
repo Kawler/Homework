@@ -11,25 +11,19 @@ namespace Project.Controllers
     public class SubjectsController : ControllerBase
     {
         private readonly ISubjectsService _subjectsService;
-        private readonly IWebHostEnvironment _env;
 
-        public SubjectsController(ISubjectsService subjectsService, IWebHostEnvironment env)
+        public SubjectsController(ISubjectsService subjectsService)
         {
             _subjectsService = subjectsService;
-            _env = env;
+            
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public JsonResult GetAll()
         {
-            try
-            {
-                return Ok(_subjectsService.GetAll().ConvertAll(t => t.ConvertToSubjectsDto()));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+
+            return new JsonResult(_subjectsService.GetAll().ConvertAll(t => t.ConvertToSubjectsDto()));
+
         }
 
 
@@ -48,8 +42,7 @@ namespace Project.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(
-            Subjects subjects)
+        public IActionResult Create(Subjects subjects)
         {
             try
             {
@@ -63,11 +56,12 @@ namespace Project.Controllers
         }
 
         [HttpDelete]
-        public IActionResult Delete( Subjects subjects)
+        [Route("{id?}")]
+        public IActionResult Delete(int id)
         {
             try
             {
-                _subjectsService.Delete(subjects);
+                _subjectsService.Delete(id);
                 return Ok();
             }
             catch (Exception ex)
@@ -77,11 +71,12 @@ namespace Project.Controllers
         }
 
         [HttpPut]
-        public IActionResult Update(Subjects subjects)
+        [Route("{id?}")]
+        public IActionResult Update( int id,Subjects subjects)
         {
             try
             {
-                _subjectsService.Update(subjects);
+                _subjectsService.Update(subjects,id);
                 return Ok();
             }
             catch (Exception ex)
@@ -89,27 +84,6 @@ namespace Project.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpPost]
-        [Route("SaveFile")]
-        public IActionResult SaveFile()
-        {
-            try{
-                var httpRequest = Request.Form;
-                var postedFile = httpRequest.Files[0];
-                string fileName = postedFile.FileName;
-                var physicalPath = _env.ContentRootPath + "/Photos/" + fileName;
-
-                using (var stream = new FileStream(physicalPath, FileMode.Create))
-                {
-                    postedFile.CopyTo(stream);
-                }
-                return Ok();
-            }
-            catch(Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-
-        }
+        
     }
 }

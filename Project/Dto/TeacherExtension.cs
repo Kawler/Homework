@@ -10,8 +10,7 @@ namespace Project.Dto
             {
                 TeacherId = teacher.TeacherId,
                 TeacherName = teacher.TeacherName,
-                TaughtSubject = teacher.TaughtSubject,
-                PhotoFile = teacher.PhotoFile
+                TaughtSubject = teacher.TaughtSubject
             };
         }
     }

@@ -10,8 +10,7 @@ namespace Project.Dto
             {
                 SubjectId = subjects.SubjectId,
                 Classroom = subjects.Classroom,
-                SubjectName = subjects.SubjectName,
-                PhotoFile = subjects.PhotoFile
+                SubjectName = subjects.SubjectName
             };
         }
     }

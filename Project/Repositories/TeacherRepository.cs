@@ -20,141 +20,70 @@ namespace Project.Repositories
             connection.Open();
 
             using SqlCommand sqlCommand = connection.CreateCommand();
-            sqlCommand.CommandText = "select [TeacherId], [TeacherName], [TaughtSubject], [PhotoFile] from [Teacher]";
-
+            sqlCommand.CommandText = "select t.[TeacherId], t.[TeacherName], t.[TaughtSubject],s.[SubjectId],s.[SubjectName] from [Teacher] as t inner join[Subjects] as s on s.[SubjectId] = t.[TaughtSubject]";
             using SqlDataReader reader = sqlCommand.ExecuteReader();
             while (reader.Read())
             {
                 result.Add(new Teacher(
                     Convert.ToInt32(reader["TeacherId"]),
                     Convert.ToString(reader["TeacherName"]),
-                    Convert.ToString(reader["TaughtSubject"]),
-                    Convert.ToString(reader["PhotoFile"])
+                    Convert.ToString(reader["SubjectName"])
                 ));
             }
 
             return result;
         }
 
-        public Teacher GetByName(string teacherName)
+        public void Delete(int id)
         {
-            using var connection = new SqlConnection(_connectionString);
-            connection.Open();
-
-            using SqlCommand sqlCommand = connection.CreateCommand();
-            sqlCommand.CommandText = "select [TeacherId], [TeacherName], [TaughtSubject], [PhotoFile] from [Teacher] where [TeachersName] = @teacherName";
-            sqlCommand.Parameters.Add("@teacherName", SqlDbType.NVarChar, 50).Value = teacherName;
-
-            using SqlDataReader reader = sqlCommand.ExecuteReader();
-            if (reader.Read())
-            {
-                return new Teacher(
-                    Convert.ToInt32(reader["TeacherId"]),
-                    Convert.ToString(reader["TeacherName"]),
-                    Convert.ToString(reader["TaughtSubject"]),
-                    Convert.ToString(reader["PhotoFile"]));
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        public void Delete(Teacher teacher)
-        {
-            if (teacher == null)
-            {
-                throw new ArgumentNullException(nameof(teacher));
-            }
-
             using var connection = new SqlConnection(_connectionString);
             connection.Open();
 
             using SqlCommand sqlCommand = connection.CreateCommand();
             sqlCommand.CommandText = "delete [Teacher] where [TeacherId] = @teacherId";
-            sqlCommand.Parameters.Add("@teacherId", SqlDbType.Int).Value = teacher.TeacherId;
+            sqlCommand.Parameters.Add("@teacherId", SqlDbType.Int).Value = id;
             sqlCommand.ExecuteNonQuery();
         }
 
-        public List<Tuple<int, string>> GroupByTaughtSubject()
+        public void Update(int id, Teacher teacher)
         {
-            var result = new List<Tuple<int, string>>();
-
-            using var connection = new SqlConnection(_connectionString);
-            connection.Open();
-
-            using SqlCommand sqlCommand = connection.CreateCommand();
-            sqlCommand.CommandText = "select count([TeacherId]) c, [TaughtSubject] from [Teacher] group by [TaughtSubject]";
-
-            using SqlDataReader reader = sqlCommand.ExecuteReader();
-            while (reader.Read())
-            {
-                result.Add(new Tuple<int, string>(
-                    Convert.ToInt32(reader["c"]),
-                    Convert.ToString(reader["TaughtSubject"])
-                ));
-            }
-
-            return result;
-        }
-
-        public void Update(Teacher teacher)
-        {
-            if (teacher == null)
-            {
-                throw new ArgumentNullException(nameof(teacher));
-            }
-
             using var connection = new SqlConnection(_connectionString);
             connection.Open();
             using SqlCommand sqlCommand = connection.CreateCommand();
-            sqlCommand.CommandText = "update [Teacher] set [TeacherName] = @teacherName where [TeacherId] = @teacherId";
-            using SqlCommand sqlCommand2 = connection.CreateCommand();
-            sqlCommand.CommandText = "update [Teacher] set [TaughtSubject] = @taughtSubject where [TeacherId] = @teacherId";
-            using SqlCommand sqlCommand3 = connection.CreateCommand();
-            sqlCommand.CommandText = "update [Teacher] set [PhotoFile] = @photoFile where [TeacherId] = @teacherId";
-            sqlCommand.Parameters.Add("@teacherId", SqlDbType.Int).Value = teacher.TeacherId;
+            sqlCommand.CommandText = "update [Teacher] set [TeacherName] = @teacherName, [TaughtSubject] = @taughtSubject where [TeacherId] = @teacherId";
+            sqlCommand.Parameters.Add("@teacherId", SqlDbType.Int).Value = id;
             sqlCommand.Parameters.Add("@teacherName", SqlDbType.NVarChar, 50).Value = teacher.TeacherName;
-            sqlCommand.Parameters.Add("@taughtSubject", SqlDbType.NVarChar, 30).Value = teacher.TaughtSubject;
-            sqlCommand.Parameters.Add("@photoFile", SqlDbType.NVarChar, 500).Value = teacher.PhotoFile;
+            sqlCommand.Parameters.Add("@taughtSubject", SqlDbType.NVarChar, 30).Value = Convert.ToString(subjectId);
             sqlCommand.ExecuteNonQuery();
         }
 
         public void Create(Teacher teacher)
         {
+            int id=Find(teacher);
             using var connection = new SqlConnection(_connectionString);
             connection.Open();
-
             using SqlCommand sqlCommand = connection.CreateCommand();
-            sqlCommand.CommandText = "insert into [Teacher] (TeacherName, TaughtSubject, PhotoFile) values (@teacherName, @taughtSubject, @photoFile)";
+            sqlCommand.CommandText = "insert into [Teacher] (TeacherName, TaughtSubject) values (@teacherName, @taughtSubject)";
             sqlCommand.Parameters.Add("@teacherName", SqlDbType.NVarChar, 50).Value = teacher.TeacherName;
-            sqlCommand.Parameters.Add("@taughtSubject", SqlDbType.NVarChar, 30).Value = teacher.TaughtSubject;
-            sqlCommand.Parameters.Add("@photoFile", SqlDbType.NVarChar, 500).Value = teacher.PhotoFile;
+            sqlCommand.Parameters.Add("@taughtSubject", SqlDbType.NVarChar, 30).Value = Convert.ToString(id);
             sqlCommand.ExecuteNonQuery();
         }
 
-        public Teacher GetById(int teacherId)
+        public int Find(Teacher teacher)
         {
             using var connection = new SqlConnection(_connectionString);
             connection.Open();
-
+            int result = 0; 
             using SqlCommand sqlCommand = connection.CreateCommand();
-            sqlCommand.CommandText = "select [TeacherId], [TeacherName], [TaughtSubject], [PhotoFile] from [Teacher] where [TeacherId] = @teacherId";
-            sqlCommand.Parameters.Add("@teacherId", SqlDbType.Int).Value = teacherId;
-
+            sqlCommand.CommandText = "select [SubjectId],[SubjectName] from [Subjects] where [SubjectName] = @taughtSubject";
+            sqlCommand.Parameters.Add("@taughtSubject", SqlDbType.NVarChar, 30).Value = teacher.TaughtSubject;
             using SqlDataReader reader = sqlCommand.ExecuteReader();
-            if (reader.Read())
+            while (reader.Read())
             {
-                return new Teacher(
-                    Convert.ToInt32(reader["TeacherId"]),
-                    Convert.ToString(reader["TeacherName"]),
-                    Convert.ToString(reader["TaughtSubject"]),
-                    Convert.ToString(reader["PhotoFile"]));
+                result = Convert.ToInt32(reader["SubjectId"]);
             }
-            else
-            {
-                return null;
-            }
+            return result;
         }
+
     }
 }
